@@ -20,83 +20,88 @@ struct ast_node *make_node(enum ast_node_type type) {
 struct ast_node *make_common_node(char *name, struct ast_node *first, struct ast_node *second) {
     struct ast_node *ident = make_node(COMMON);
     strncpy(ident->ast_common.node_name, name, 1024);
+    ident->ast_common.left = first;
+    ident->ast_common.right = second;
 
     return ident;
 }
 
-struct ast_node *make_constant(int value) {
-    struct ast_node *constant = make_node(CONST);
-
-    constant->as_const.value = value;
-
-    return constant;
-}
-
-struct ast_node *make_expression(struct ast_node *left, enum operation_type oper, struct ast_node *right) {
-    struct ast_node *expr = make_node(EXPR);
-
-    expr->as_expr.left = left;
-    expr->as_expr.oper = oper;
-    expr->as_expr.right = right;
+struct ast_node *make_expr_node(char *name, struct ast_node *first, struct ast_node *second) {
+    struct ast_node *expr = make_node(EXPRESSION);
+    strncpy(expr->ast_expression.oper_name, name, 1024);
+    expr->ast_expression.left = first;
+    expr->ast_expression.right = second;
 
     return expr;
 }
 
-struct ast_node *make_unexpression(enum operation_type oper, struct ast_node *arg) {
-    struct ast_node *unexpr = make_node(UNEXPR);
+struct ast_node *make_call_node(char *name, struct ast_node *node) {
+    struct ast_node *call = make_node(CALL);
+    strncpy(call->ast_call.ident, name, 1024);
+    call->ast_call.call_list = node;
 
-    unexpr->as_unexpr.oper = oper;
-    unexpr->as_unexpr.argument = arg;
-
-    return unexpr;
+    return call;
 }
 
-struct ast_node *make_branch(struct ast_node *test, struct ast_node *consequent, struct ast_node *alternate) {
-    struct ast_node *branch = make_node(BRANCH);
+struct ast_node *make_loop_node(char *name, struct ast_node *first, struct ast_node *second) {
+    struct ast_node *loop = make_node(LOOP);
+    strncpy(loop->ast_loop.loop_type, name, 1024);
+    loop->ast_loop.expression = first;
+    loop->ast_loop.statement = second;
 
-    branch->as_branch.test = test;
-    branch->as_branch.consequent = consequent;
-    branch->as_branch.alternate = alternate;
+    return loop;
+}
+
+struct ast_node *make_block(struct ast_node *node) {
+    struct ast_node *block = make_node(BLOCK);
+    block->ast_block.block_items = node;
+
+    return block;
+}
+
+struct ast_node *make_branch_node(struct ast_node *expression, struct ast_node *statement1, struct ast_node *statement2) {
+    struct ast_node *branch = make_node(BRANCH);
+    branch->ast_branch.if_expr = expression;
+    branch->ast_branch.if_statement = statement1;
+    branch->ast_branch.else_statement = statement2;
 
     return branch;
 }
 
-struct ast_node *make_repeat(struct ast_node *test, struct ast_node *body) {
-    struct ast_node *repeat = make_node(REPEAT);
+struct ast_node *make_function_signature(char *name, struct ast_node *first, struct ast_node *second) {
+    struct ast_node *signature = make_node(FUNCTION_SIGNATURE);
+    strncpy(signature->ast_function_signature.name, name, 1024);
+    signature->ast_function_signature.args = first;
+    signature->ast_function_signature.type_ref = second;
 
-    repeat->as_repeat.test = test;
-    repeat->as_repeat.body = body;
-
-    return repeat;
+    return signature;
 }
 
-struct ast_node *make_stmts_list(struct ast_node *head, struct ast_node *next) {
-    struct ast_node *list = make_node(STMTS_LIST);
+struct ast_node *make_body(struct ast_node *block, struct ast_node *body_var) {
+    struct ast_node *body = make_node(BODY);
+    body->ast_body.block = block;
+    body->ast_body.last_block = body_var;
 
-    list->as_stmts_list.current = head;
-    list->as_stmts_list.next = next;
-
-    return list;
+    return body;
 }
 
-void stmts_list_insert(struct ast_node **head_p, struct ast_node *first) {
-    if (*head_p) {
-        struct ast_node *const oldstart = make_stmts_list((*head_p)->as_stmts_list.current,
-                                                          (*head_p)->as_stmts_list.next);
-        free(*head_p);
-        (*head_p) = make_stmts_list(first, oldstart);
-    } else *head_p = make_stmts_list(first, NULL);
+struct ast_node *make_source_item(struct ast_node *signature, struct ast_node *body) {
+    struct ast_node *source_item = make_node(SOURCE_ITEM);
+    source_item->ast_source_item.signature = signature;
+    source_item->ast_source_item.body = body;
+
+    return source_item;
 }
 
-struct ast_node *make_program(struct ast_node *child) {
-    struct ast_node *program = make_node(PROGRAM);
+struct ast_node *make_source(struct ast_node *source_node, struct ast_node *source_item) {
+    struct ast_node *source = make_node(SOURCE);
+    source->ast_source.source = source_node;
+    source->ast_source.source_item = source_item;
 
-    program->as_program.child = child;
-
-    return program;
+    return source;
 }
 
-static void free_node(struct ast_node *node) {
+void free_ast(struct ast_node *node) {
     free(node);
 }
 

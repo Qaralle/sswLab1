@@ -39,8 +39,8 @@ struct ast_expression {
 
 struct ast_common {
     char *node_name;
-    struct ast_node *first;
-    struct ast_node *second;
+    struct ast_node *left;
+    struct ast_node *right;
 };
 
 struct ast_call {
@@ -109,17 +109,17 @@ struct ast_node *make_call_node(char *, struct ast_node *);
 
 struct ast_node *make_loop_node(char *, struct ast_node *, struct ast_node *);
 
-struct ast_node *make_block(struct ast_node *, struct ast_node *, struct ast_node *);
+struct ast_node *make_branch_node(struct ast_node *, struct ast_node *, struct ast_node *);
 
-struct ast_node *make_branch_node(struct ast_node *);
+struct ast_node *make_block(struct ast_node *);
 
 struct ast_node *make_function_signature(char *, struct ast_node *, struct ast_node *);
 
-struct ast_node *make_body(char *, struct ast_node *, struct ast_node *);
+struct ast_node *make_body(struct ast_node *, struct ast_node *);
 
-struct ast_node *make_source_item(char *, struct ast_node *, struct ast_node *);
+struct ast_node *make_source_item(struct ast_node *, struct ast_node *);
 
-struct ast_node *make_source(char *, struct ast_node *, struct ast_node *);
+struct ast_node *make_source(struct ast_node *, struct ast_node *);
 
 void free_ast(struct ast_node *);
 
