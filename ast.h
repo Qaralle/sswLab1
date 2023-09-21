@@ -109,6 +109,7 @@ struct ast_identifier {
 
 struct ast_node {
     enum ast_node_type type;
+    unsigned long long id;
     union {
         struct ast_expression ast_expression;
         struct ast_source ast_source;

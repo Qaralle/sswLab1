@@ -4,6 +4,8 @@
 
 #include "ast.h"
 
+unsigned long long counter = 0;
+
 struct ast_node *make_node(enum ast_node_type type) {
     struct ast_node *node = (struct ast_node *) malloc(sizeof(struct ast_node));
 
@@ -12,6 +14,7 @@ struct ast_node *make_node(enum ast_node_type type) {
         exit(1);
     }
 
+    node->id = counter++;
     node->type = type;
 
     return node;
@@ -144,48 +147,65 @@ void free_ast(struct ast_node *node) {
     free(node);
 }
 
+void print_node_ident(struct ast_node *node) {
+    printf("\"type: %s, id: %llu\"", ant_names[node->type], node->id);
+}
+
 void print_node(struct ast_node *node, unsigned int level) {
     if (node == NULL) return;
 
-    for (int i = 0; i < level; ++i) {
-        printf(" ");
-    }
-    printf("%d: %s\n", level, ant_names[node->type]);
-
     switch (node->type) {
         case EXPRESSION: {
+            print_node_ident(node);
+            printf(" -> ");
             print_node(node->ast_expression.left, level + 1);
+            printf(";\n");
+            printf(" -> ");
             print_node(node->ast_expression.right, level + 1);
+            printf(";\n");
             break;
         }
         case SOURCE: {
+            printf(" -> ");
             print_node(node->ast_source.source, level);
+            printf(" -> ");
             print_node(node->ast_source.source_item, level + 1);
             break;
         }
         case SOURCE_ITEM: {
+            printf(" -> ");
             print_node(node->ast_source_item.signature, level + 1);
+            printf(" -> ");
             print_node(node->ast_source_item.body, level + 1);
             break;
         }
         case BODY: {
+            printf(" -> ");
             print_node(node->ast_source.source, level);
+            printf(" -> ");
             print_node(node->ast_source.source_item, level + 1);
             break;
         }
         case FUNCTION_SIGNATURE: {
+            printf(" -> ");
             print_node(node->ast_function_signature.ident, level + 1);
+            printf(" -> ");
             print_node(node->ast_function_signature.args, level + 1);
+            printf(" -> ");
             print_node(node->ast_function_signature.type_ref, level + 1);
             break;
         }
         case BRANCH: {
+            printf(" -> ");
             print_node(node->ast_branch.if_expr, level + 1);
+            printf(" -> ");
             print_node(node->ast_branch.if_statement, level + 1);
+            printf(" -> ");
             print_node(node->ast_branch.else_statement, level + 1);
             break;
         }
         case BLOCK: {
+            printf(" -> ");
             print_node(node->ast_block.block_items, level + 1);
             break;
         }
@@ -199,6 +219,7 @@ void print_node(struct ast_node *node, unsigned int level) {
             break;
         }
         case CALL: {
+            printf(" -> ");
             print_node(node->ast_call.ident, level + 1);
             print_node(node->ast_call.call_list, level + 1);
             break;
@@ -241,5 +262,10 @@ void print_node(struct ast_node *node, unsigned int level) {
 void print_ast(struct ast_node *node) {
     unsigned int level = 0;
 
+    printf("digraph G {\n");
+
     print_node(node, level);
+
+    printf(" [shape=Mdiamond];\n");
+    printf("}\n");
 }
