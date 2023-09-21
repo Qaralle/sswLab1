@@ -148,7 +148,33 @@ void free_ast(struct ast_node *node) {
 }
 
 void print_node_ident(struct ast_node *node) {
-    printf("\"type: %s, id: %llu\"", ant_names[node->type], node->id);
+    printf("\"type: %s, id: %llu", ant_names[node->type], node->id);
+    switch (node->type) {
+        case LOOP: {
+            printf(", loop_type: %s\"", node->ast_loop.loop_type);
+            break;
+        }
+        case COMMON: {
+            printf(", name: %s\"", node->ast_common.node_name);
+            break;
+        }
+        case TYPE_N: {
+            printf(", name: %s\"", node->ast_type.type_name);
+            break;
+        }
+        case VALUE: {
+            printf(", type_name: %s, value: %s\"", node->ast_value.type_name, node->ast_value.value);
+            break;
+        }
+        case IDENTIFIER: {
+            printf(", value: %s\"", node->ast_identifier.name);
+            break;
+        }
+        default: {
+            printf("\"");
+            break;
+        }
+    }
 }
 
 void print_node(struct ast_node *node, unsigned int level) {
@@ -156,102 +182,220 @@ void print_node(struct ast_node *node, unsigned int level) {
 
     switch (node->type) {
         case EXPRESSION: {
-            print_node_ident(node);
-            printf(" -> ");
-            print_node(node->ast_expression.left, level + 1);
-            printf(";\n");
-            printf(" -> ");
-            print_node(node->ast_expression.right, level + 1);
-            printf(";\n");
+            if (node->ast_expression.left) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_expression.left);
+                printf(";\n");
+                print_node(node->ast_expression.left, level + 1);
+            }
+
+            if (node->ast_expression.right) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_expression.right);
+                printf(";\n");
+                print_node(node->ast_expression.right, level + 1);
+            }
             break;
         }
         case SOURCE: {
-            printf(" -> ");
-            print_node(node->ast_source.source, level);
-            printf(" -> ");
-            print_node(node->ast_source.source_item, level + 1);
+            if (node->ast_source.source) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_source.source);
+                printf(";\n");
+                print_node(node->ast_source.source, level);
+            }
+
+            if (node->ast_source.source_item) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_source.source_item);
+                printf(";\n");
+                print_node(node->ast_source.source_item, level + 1);
+            }
             break;
         }
         case SOURCE_ITEM: {
-            printf(" -> ");
-            print_node(node->ast_source_item.signature, level + 1);
-            printf(" -> ");
-            print_node(node->ast_source_item.body, level + 1);
+            if (node->ast_source_item.signature) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_source_item.signature);
+                printf(";\n");
+                print_node(node->ast_source_item.signature, level + 1);
+            }
+
+            if (node->ast_source_item.body) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_source_item.body);
+                printf(";\n");
+                print_node(node->ast_source_item.body, level + 1);
+            }
             break;
         }
         case BODY: {
-            printf(" -> ");
-            print_node(node->ast_source.source, level);
-            printf(" -> ");
-            print_node(node->ast_source.source_item, level + 1);
+            if (node->ast_body.block) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_body.block);
+                printf(";\n");
+                print_node(node->ast_body.block, level);
+            }
+
+            if (node->ast_body.last_block) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_body.last_block);
+                printf(";\n");
+                print_node(node->ast_body.last_block, level + 1);
+            }
+
+            free_ast(node);
             break;
         }
         case FUNCTION_SIGNATURE: {
-            printf(" -> ");
-            print_node(node->ast_function_signature.ident, level + 1);
-            printf(" -> ");
-            print_node(node->ast_function_signature.args, level + 1);
-            printf(" -> ");
-            print_node(node->ast_function_signature.type_ref, level + 1);
+            if (node->ast_function_signature.ident) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_function_signature.ident);
+                printf(";\n");
+                print_node(node->ast_function_signature.ident, level + 1);
+            }
+
+            if (node->ast_function_signature.args) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_function_signature.args);
+                printf(";\n");
+                print_node(node->ast_function_signature.args, level + 1);
+            }
+
+            if (node->ast_function_signature.type_ref) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_function_signature.type_ref);
+                printf(";\n");
+                print_node(node->ast_function_signature.type_ref, level + 1);
+            }
+
+            free_ast(node);
             break;
         }
         case BRANCH: {
-            printf(" -> ");
-            print_node(node->ast_branch.if_expr, level + 1);
-            printf(" -> ");
-            print_node(node->ast_branch.if_statement, level + 1);
-            printf(" -> ");
-            print_node(node->ast_branch.else_statement, level + 1);
+            if (node->ast_branch.if_expr) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_branch.if_expr);
+                printf(";\n");
+                print_node(node->ast_branch.if_expr, level + 1);
+            }
+
+            if (node->ast_branch.if_statement) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_branch.if_statement);
+                printf(";\n");
+                print_node(node->ast_branch.if_statement, level + 1);
+            }
+
+            if (node->ast_branch.else_statement) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_branch.else_statement);
+                printf(";\n");
+                print_node(node->ast_branch.else_statement, level + 1);
+            }
+
+            free_ast(node);
             break;
         }
         case BLOCK: {
-            printf(" -> ");
-            print_node(node->ast_block.block_items, level + 1);
+            if (node->ast_block.block_items) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_block.block_items);
+                printf(";\n");
+                print_node(node->ast_block.block_items, level + 1);
+            }
+
+            free_ast(node);
             break;
         }
         case LOOP: {
-            for (int i = 0; i < level; ++i) {
-                printf(" ");
+            if (node->ast_loop.statement) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_loop.statement);
+                printf(";\n");
+                print_node(node->ast_loop.statement, level + 1);
             }
-            printf("type: %s\n", node->ast_loop.loop_type);
-            print_node(node->ast_loop.statement, level + 1);
-            print_node(node->ast_loop.expression, level + 1);
+
+            if (node->ast_loop.expression) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_loop.expression);
+                printf(";\n");
+                print_node(node->ast_loop.expression, level + 1);
+            }
+
+            free_ast(node);
             break;
         }
         case CALL: {
-            printf(" -> ");
-            print_node(node->ast_call.ident, level + 1);
-            print_node(node->ast_call.call_list, level + 1);
+            if (node->ast_call.ident) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_call.ident);
+                printf(";\n");
+                print_node(node->ast_call.ident, level + 1);
+            }
+
+            if (node->ast_call.call_list) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_call.call_list);
+                printf(";\n");
+                print_node(node->ast_call.call_list, level + 1);
+            }
+
+            free_ast(node);
             break;
         }
         case COMMON: {
-            for (int i = 0; i < level; ++i) {
-                printf(" ");
+            if (node->ast_common.left) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_common.left);
+                printf(";\n");
+                print_node(node->ast_common.left, level + 1);
             }
-            printf("name: %s\n", node->ast_common.node_name);
-            print_node(node->ast_common.left, level + 1);
-            print_node(node->ast_common.right, level + 1);
+
+            if (node->ast_common.right) {
+                print_node_ident(node);
+                printf(" -> ");
+                print_node_ident(node->ast_common.right);
+                printf(";\n");
+                print_node(node->ast_common.right, level + 1);
+            }
+
+            free_ast(node);
             break;
         }
         case TYPE_N: {
-            for (int i = 0; i < level; ++i) {
-                printf(" ");
-            }
-            printf("%s\n", node->ast_type.type_name);
+            print_node_ident(node);
+            free_ast(node);
             break;
         }
         case VALUE: {
-            for (int i = 0; i < level; ++i) {
-                printf(" ");
-            }
-            printf("%s of %s\n", node->ast_value.value, node->ast_value.type_name);
+            print_node_ident(node);
+            free_ast(node);
             break;
         }
         case IDENTIFIER: {
-            for (int i = 0; i < level; ++i) {
-                printf(" ");
-            }
-            printf("%s\n", node->ast_identifier.name);
+            print_node_ident(node);
+            free_ast(node);
             break;
         }
         default:

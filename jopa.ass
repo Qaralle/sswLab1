@@ -4,15 +4,3 @@ method jopa(a:int):penis
         if 1>1 then penis(1, l[7]);
         else a:=2+3*10;
     end;
-method ppppp(a:int):penis
-    var a,b,c:penis; n,j:piska; l:array[] of int;
-    begin
-        if 1>1 then penis(1, l[7]);
-        else a:=2+3*10;
-    end;
-method ppewwerwerppp(a:int):penis
-    var a,b,c:penis; n,j:piska; l:array[] of int;
-    begin
-        if 1>1 then penis(1, l[7]);
-        else a:=2+3*10;
-    end;

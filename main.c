@@ -10,12 +10,11 @@ extern struct ast_node *root;
 
 int main(int argc, char *argv[]) {
     if (argc > 1) {
-        FILE *input_file = fopen("../jopa.ass", "r");
+        FILE *input_file = fopen(argv[1], "r");
         if (input_file) {
             yyin = input_file;
             yyparse();
 
-            struct ast_source *j = root;
             print_ast(root);
             fclose(input_file);
 

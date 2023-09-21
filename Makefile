@@ -1,4 +1,3 @@
-.PHONY: all clean
 all: result
 
 clean:
@@ -32,4 +31,4 @@ result: ast.o grammer.tab.o lex.yy.o main.o error.o
 	gcc main.o grammer.tab.o lex.yy.o ast.o error.o -o result && chmod +x result
 
 run: result
-	./result jopa.ass
+	./result ./jopa.ass | dot -Tsvg > output.svg
