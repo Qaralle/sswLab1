@@ -19,7 +19,9 @@ struct ast_node *make_node(enum ast_node_type type) {
 
 struct ast_node *make_common_node(char *name, struct ast_node *first, struct ast_node *second) {
     struct ast_node *ident = make_node(COMMON);
-    strncpy(ident->ast_common.node_name, name, 1024);
+
+    strncpy(ident->ast_common.node_name, name, MAXIMUM_IDENTIFIER_LENGTH);
+
     ident->ast_common.left = first;
     ident->ast_common.right = second;
 
@@ -28,16 +30,19 @@ struct ast_node *make_common_node(char *name, struct ast_node *first, struct ast
 
 struct ast_node *make_expr_node(char *name, struct ast_node *first, struct ast_node *second) {
     struct ast_node *expr = make_node(EXPRESSION);
-    strncpy(expr->ast_expression.oper_name, name, 1024);
+
+    strncpy(expr->ast_expression.oper_name, name, MAXIMUM_IDENTIFIER_LENGTH);
+
     expr->ast_expression.left = first;
     expr->ast_expression.right = second;
 
     return expr;
 }
 
-struct ast_node *make_call_node(char *name, struct ast_node *node) {
+struct ast_node *make_call_node(struct ast_node *ident, struct ast_node *node) {
     struct ast_node *call = make_node(CALL);
-    strncpy(call->ast_call.ident, name, 1024);
+
+    call->ast_call.ident = ident;
     call->ast_call.call_list = node;
 
     return call;
@@ -45,7 +50,9 @@ struct ast_node *make_call_node(char *name, struct ast_node *node) {
 
 struct ast_node *make_loop_node(char *name, struct ast_node *first, struct ast_node *second) {
     struct ast_node *loop = make_node(LOOP);
-    strncpy(loop->ast_loop.loop_type, name, 1024);
+
+    strncpy(loop->ast_loop.loop_type, name, MAXIMUM_IDENTIFIER_LENGTH);
+
     loop->ast_loop.expression = first;
     loop->ast_loop.statement = second;
 
@@ -54,13 +61,16 @@ struct ast_node *make_loop_node(char *name, struct ast_node *first, struct ast_n
 
 struct ast_node *make_block(struct ast_node *node) {
     struct ast_node *block = make_node(BLOCK);
+
     block->ast_block.block_items = node;
 
     return block;
 }
 
-struct ast_node *make_branch_node(struct ast_node *expression, struct ast_node *statement1, struct ast_node *statement2) {
+struct ast_node *
+make_branch_node(struct ast_node *expression, struct ast_node *statement1, struct ast_node *statement2) {
     struct ast_node *branch = make_node(BRANCH);
+
     branch->ast_branch.if_expr = expression;
     branch->ast_branch.if_statement = statement1;
     branch->ast_branch.else_statement = statement2;
@@ -68,9 +78,10 @@ struct ast_node *make_branch_node(struct ast_node *expression, struct ast_node *
     return branch;
 }
 
-struct ast_node *make_function_signature(char *name, struct ast_node *first, struct ast_node *second) {
+struct ast_node *make_function_signature(struct ast_node *ident, struct ast_node *first, struct ast_node *second) {
     struct ast_node *signature = make_node(FUNCTION_SIGNATURE);
-    strncpy(signature->ast_function_signature.name, name, 1024);
+
+    signature->ast_function_signature.ident = ident;
     signature->ast_function_signature.args = first;
     signature->ast_function_signature.type_ref = second;
 
@@ -79,6 +90,7 @@ struct ast_node *make_function_signature(char *name, struct ast_node *first, str
 
 struct ast_node *make_body(struct ast_node *block, struct ast_node *body_var) {
     struct ast_node *body = make_node(BODY);
+
     body->ast_body.block = block;
     body->ast_body.last_block = body_var;
 
@@ -87,6 +99,7 @@ struct ast_node *make_body(struct ast_node *block, struct ast_node *body_var) {
 
 struct ast_node *make_source_item(struct ast_node *signature, struct ast_node *body) {
     struct ast_node *source_item = make_node(SOURCE_ITEM);
+
     source_item->ast_source_item.signature = signature;
     source_item->ast_source_item.body = body;
 
@@ -95,121 +108,138 @@ struct ast_node *make_source_item(struct ast_node *signature, struct ast_node *b
 
 struct ast_node *make_source(struct ast_node *source_node, struct ast_node *source_item) {
     struct ast_node *source = make_node(SOURCE);
+
     source->ast_source.source = source_node;
     source->ast_source.source_item = source_item;
 
     return source;
 }
 
+struct ast_node *make_value_node(char *type, char *value) {
+    struct ast_node *value_node = make_node(VALUE);
+
+    strncpy(value_node->ast_value.value, value, MAXIMUM_IDENTIFIER_LENGTH);
+    strncpy(value_node->ast_identifier.name, type, MAXIMUM_IDENTIFIER_LENGTH);
+
+    return value_node;
+}
+
+struct ast_node *make_type_node(char *name) {
+    struct ast_node *value_node = make_node(TYPE_N);
+
+    strncpy(value_node->ast_type.type_name, name, MAXIMUM_IDENTIFIER_LENGTH);
+
+    return value_node;
+}
+
+struct ast_node *make_ident_node(char *name) {
+    struct ast_node *value_node = make_node(IDENTIFIER);
+
+    strncpy(value_node->ast_identifier.name, name, MAXIMUM_IDENTIFIER_LENGTH);
+
+    return value_node;
+}
+
 void free_ast(struct ast_node *node) {
     free(node);
 }
 
-//static void preprint_ast(struct ast_node *node) {
-//    nr_spaces += 2;
-//    for (size_t i = 0; i < nr_spaces; ++i)
-//        fprintf(stderr, " ");
-//
-//    fprintf(stderr, ANT_COMMON_FMT, ant_names[node->type], (long unsigned int) node);
-//    switch (node->type) {
-//        case PROGRAM:
-//            fprintf(stderr, ANT_PROGRAM_FMT "\n",
-//                    (long unsigned int) node->as_program.child);
-//            break;
-//        case STMTS_LIST:
-//            fprintf(stderr, ANT_STMTS_LIST_FMT "\n",
-//                    (long unsigned int) node->as_stmts_list.current,
-//                    (long unsigned int) node->as_stmts_list.next);
-//            break;
-//        case REPEAT:
-//            fprintf(stderr, ANT_REPEAT_FMT "\n",
-//                    (long unsigned int) node->as_repeat.test,
-//                    (long unsigned int) node->as_repeat.body);
-//            break;
-//        case BRANCH:
-//            fprintf(stderr, ANT_BRANCH_FMT "\n",
-//                    (long unsigned int) node->as_branch.test,
-//                    (long unsigned int) node->as_branch.consequent,
-//                    (long unsigned int) node->as_branch.alternate);
-//            break;
-//        case UNEXPR:
-//            fprintf(stderr, ANT_UNEXPR_FMT "\n",
-//                    ot_symbol[node->as_unexpr.oper],
-//                    (long unsigned int) node->as_unexpr.argument);
-//            break;
-//        case EXPR:
-//            fprintf(stderr, ANT_EXPR_FMT "\n",
-//                    (long unsigned int) node->as_expr.left,
-//                    ot_symbol[node->as_expr.oper],
-//                    (long unsigned int) node->as_expr.right);
-//            break;
-//        case CONST:
-//            fprintf(stderr, ANT_CONST_FMT "\n", node->as_const.value);
-//            break;
-//        case IDENT:
-//            fprintf(stderr, ANT_IDENT_FMT "\n", node->as_ident.name);
-//            break;
-//        default:
-//            fprintf(stderr, "unknown-node>\n");
-//            break;
-//    }
-//}
-//
-//static void postprint_ast(struct ast_node *node) {
-//    nr_spaces -= 2;
-//}
-//
-//void dfs_traverse(struct ast_node *node, process_cb preproccess_cb, process_cb postprocess_cb) {
-//    if (node == NULL) return;
-//
-//    preproccess_cb(node);
-//
-//    switch (node->type) {
-//        case PROGRAM:
-//            dfs_traverse(node->as_program.child, preproccess_cb, postprocess_cb);
-//            break;
-//        case STMTS_LIST: {
-//            struct ast_node *iter = node;
-//            while (iter != NULL) {
-//                dfs_traverse(iter->as_stmts_list.current, preproccess_cb, postprocess_cb);
-//                struct ast_node *temp = iter;
-//                iter = iter->as_stmts_list.next;
-//                postprocess_cb(temp); // for good freeing
-//            }
-//            return;
-//        }
-//        case REPEAT: {
-//            dfs_traverse(node->as_repeat.body, preproccess_cb, postprocess_cb);
-//            dfs_traverse(node->as_repeat.test, preproccess_cb, postprocess_cb);
-//            break;
-//        }
-//        case BRANCH: {
-//            dfs_traverse(node->as_branch.test, preproccess_cb, postprocess_cb);
-//            dfs_traverse(node->as_branch.consequent, preproccess_cb, postprocess_cb);
-//            dfs_traverse(node->as_branch.alternate, preproccess_cb, postprocess_cb);
-//            break;
-//        }
-//        case UNEXPR:
-//            dfs_traverse(node->as_unexpr.argument, preproccess_cb, postprocess_cb);
-//            break;
-//        case EXPR: {
-//            dfs_traverse(node->as_expr.left, preproccess_cb, postprocess_cb);
-//            dfs_traverse(node->as_expr.right, preproccess_cb, postprocess_cb);
-//            break;
-//        }
-//        default:
-//            break;
-//    }
-//
-//    postprocess_cb(node);
-//    return;
-//}
+void print_node(struct ast_node *node, unsigned int level) {
+    if (node == NULL) return;
 
-//void free_ast(struct ast_node *root) {
-//    dfs_traverse(root, dump_cb, free_node);
-//}
-//
-//int print_ast(struct ast_node *root) {
-//    dfs_traverse(root, preprint_ast, postprint_ast);
-//    return 1;
-//}
+    for (int i = 0; i < level; ++i) {
+        printf(" ");
+    }
+    printf("%d: %s\n", level, ant_names[node->type]);
+
+    switch (node->type) {
+        case EXPRESSION: {
+            print_node(node->ast_expression.left, level + 1);
+            print_node(node->ast_expression.right, level + 1);
+            break;
+        }
+        case SOURCE: {
+            print_node(node->ast_source.source, level);
+            print_node(node->ast_source.source_item, level + 1);
+            break;
+        }
+        case SOURCE_ITEM: {
+            print_node(node->ast_source_item.signature, level + 1);
+            print_node(node->ast_source_item.body, level + 1);
+            break;
+        }
+        case BODY: {
+            print_node(node->ast_source.source, level);
+            print_node(node->ast_source.source_item, level + 1);
+            break;
+        }
+        case FUNCTION_SIGNATURE: {
+            print_node(node->ast_function_signature.ident, level + 1);
+            print_node(node->ast_function_signature.args, level + 1);
+            print_node(node->ast_function_signature.type_ref, level + 1);
+            break;
+        }
+        case BRANCH: {
+            print_node(node->ast_branch.if_expr, level + 1);
+            print_node(node->ast_branch.if_statement, level + 1);
+            print_node(node->ast_branch.else_statement, level + 1);
+            break;
+        }
+        case BLOCK: {
+            print_node(node->ast_block.block_items, level + 1);
+            break;
+        }
+        case LOOP: {
+            for (int i = 0; i < level; ++i) {
+                printf(" ");
+            }
+            printf("type: %s\n", node->ast_loop.loop_type);
+            print_node(node->ast_loop.statement, level + 1);
+            print_node(node->ast_loop.expression, level + 1);
+            break;
+        }
+        case CALL: {
+            print_node(node->ast_call.ident, level + 1);
+            print_node(node->ast_call.call_list, level + 1);
+            break;
+        }
+        case COMMON: {
+            for (int i = 0; i < level; ++i) {
+                printf(" ");
+            }
+            printf("name: %s\n", node->ast_common.node_name);
+            print_node(node->ast_common.left, level + 1);
+            print_node(node->ast_common.right, level + 1);
+            break;
+        }
+        case TYPE_N: {
+            for (int i = 0; i < level; ++i) {
+                printf(" ");
+            }
+            printf("%s\n", node->ast_type.type_name);
+            break;
+        }
+        case VALUE: {
+            for (int i = 0; i < level; ++i) {
+                printf(" ");
+            }
+            printf("%s of %s\n", node->ast_value.value, node->ast_value.type_name);
+            break;
+        }
+        case IDENTIFIER: {
+            for (int i = 0; i < level; ++i) {
+                printf(" ");
+            }
+            printf("%s\n", node->ast_identifier.name);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void print_ast(struct ast_node *node) {
+    unsigned int level = 0;
+
+    print_node(node, level);
+}

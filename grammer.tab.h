@@ -40,110 +40,104 @@
       know about them.  */
    enum yytokentype {
      IDENT = 258,
-     CONST = 259,
-     ARRAY = 260,
-     OF = 261,
-     AP = 262,
-     SOP = 263,
-     SCP = 264,
-     OP = 265,
-     CP = 266,
-     MINUS = 267,
-     NOT = 268,
-     BIN_EQUALS = 269,
-     BIN_GREATER = 270,
-     BIN_LESS = 271,
-     BIN_MOD = 272,
-     BIN_DIV = 273,
-     BIN_MUL = 274,
-     BIN_PLUS = 275,
-     BIN_OR = 276,
-     BIN_AND = 277,
-     ASSIGN = 278,
-     TRUE = 279,
-     FALSE = 280,
-     STR = 281,
-     CHAR = 282,
-     HEX = 283,
-     BIN = 284,
-     DEC = 285,
-     METHOD = 286,
-     WHILE = 287,
-     REPEAT = 288,
-     DO = 289,
-     BREAK = 290,
-     UNTIL = 291,
-     IF = 292,
-     THEN = 293,
-     ELSE = 294,
-     COLON = 295,
-     SEMICOLON = 296,
-     COMMA = 297,
-     VAR = 298,
-     BEGIN = 299,
-     END = 300,
-     TYPE = 301,
-     ERROR = 302
+     ARRAY = 259,
+     OF = 260,
+     AP = 261,
+     SOP = 262,
+     SCP = 263,
+     OP = 264,
+     CP = 265,
+     MINUS = 266,
+     NOT = 267,
+     BIN_EQUALS = 268,
+     BIN_GREATER = 269,
+     BIN_LESS = 270,
+     BIN_MOD = 271,
+     BIN_DIV = 272,
+     BIN_MUL = 273,
+     BIN_PLUS = 274,
+     BIN_OR = 275,
+     BIN_AND = 276,
+     TRUE = 277,
+     FALSE = 278,
+     STR = 279,
+     CHAR = 280,
+     HEX = 281,
+     BIN = 282,
+     DEC = 283,
+     METHOD = 284,
+     WHILE = 285,
+     REPEAT = 286,
+     DO = 287,
+     BREAK = 288,
+     UNTIL = 289,
+     IF = 290,
+     THEN = 291,
+     ELSE = 292,
+     COLON = 293,
+     SEMICOLON = 294,
+     COMMA = 295,
+     VAR = 296,
+     BEGINING = 297,
+     END = 298,
+     TYPE = 299
    };
 #endif
 /* Tokens.  */
 #define IDENT 258
-#define CONST 259
-#define ARRAY 260
-#define OF 261
-#define AP 262
-#define SOP 263
-#define SCP 264
-#define OP 265
-#define CP 266
-#define MINUS 267
-#define NOT 268
-#define BIN_EQUALS 269
-#define BIN_GREATER 270
-#define BIN_LESS 271
-#define BIN_MOD 272
-#define BIN_DIV 273
-#define BIN_MUL 274
-#define BIN_PLUS 275
-#define BIN_OR 276
-#define BIN_AND 277
-#define ASSIGN 278
-#define TRUE 279
-#define FALSE 280
-#define STR 281
-#define CHAR 282
-#define HEX 283
-#define BIN 284
-#define DEC 285
-#define METHOD 286
-#define WHILE 287
-#define REPEAT 288
-#define DO 289
-#define BREAK 290
-#define UNTIL 291
-#define IF 292
-#define THEN 293
-#define ELSE 294
-#define COLON 295
-#define SEMICOLON 296
-#define COMMA 297
-#define VAR 298
-#define BEGIN 299
-#define END 300
-#define TYPE 301
-#define ERROR 302
+#define ARRAY 259
+#define OF 260
+#define AP 261
+#define SOP 262
+#define SCP 263
+#define OP 264
+#define CP 265
+#define MINUS 266
+#define NOT 267
+#define BIN_EQUALS 268
+#define BIN_GREATER 269
+#define BIN_LESS 270
+#define BIN_MOD 271
+#define BIN_DIV 272
+#define BIN_MUL 273
+#define BIN_PLUS 274
+#define BIN_OR 275
+#define BIN_AND 276
+#define TRUE 277
+#define FALSE 278
+#define STR 279
+#define CHAR 280
+#define HEX 281
+#define BIN 282
+#define DEC 283
+#define METHOD 284
+#define WHILE 285
+#define REPEAT 286
+#define DO 287
+#define BREAK 288
+#define UNTIL 289
+#define IF 290
+#define THEN 291
+#define ELSE 292
+#define COLON 293
+#define SEMICOLON 294
+#define COMMA 295
+#define VAR 296
+#define BEGINING 297
+#define END 298
+#define TYPE 299
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 12 "grammer.y"
+#line 14 "grammer.y"
 {
   struct ast_node* node;
 }
 /* Line 1529 of yacc.c.  */
-#line 147 "grammer.tab.h"
+#line 141 "grammer.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

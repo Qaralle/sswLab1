@@ -4,8 +4,11 @@
   #include <stdbool.h>
   #include <getopt.h>
   #include "ast.h"
+  #include "error.h"
 
+  struct ast_node *root;
 %}
+
 %error-verbose
 
 %union {
@@ -29,7 +32,7 @@
 %token		       COLON
 %token		       SEMICOLON
 %token             COMMA
-%token             VAR BEGIN END
+%token             VAR BEGINING END
 %token      <node> TYPE
 
 %type <node> source
@@ -53,7 +56,7 @@
 %type <node> break
 %type <node> expr
 %type <node> expression
-%type <oper> unary binary
+%type <node> unary binary
 %type <node> braces
 %type <node> call
 %type <node> indexer
@@ -67,8 +70,8 @@
 
 %%
 
-source: 				    {$$ = NULL}
-	| source source_item    {$$ = make_source($1, $2)}
+source: 				    {$$ = root = NULL}
+	| source source_item    {$$ = root = make_source($1, $2)}
 	;
 
 source_item: METHOD function_signature body {$$ = make_source_item($2, $3)}
@@ -93,7 +96,7 @@ list_var: IDENT COMMA list_var   {$$ = make_common_node("list", $1, $3)}
     ;
 
 function_signature: IDENT OP list_arg CP 	    {$$ = make_function_signature($1, $3, NULL)}
-	| IDENT OP list_arg CP SEMICOLON type_ref   {$$ = make_function_signature($1, $3, $6)}
+	| IDENT OP list_arg CP COLON type_ref       {$$ = make_function_signature($1, $3, $6)}
  	;
 
 list_arg: list_arg_item COMMA list_arg   {$$ = make_common_node("list", $1, $3)}
@@ -118,7 +121,7 @@ custom:
     ;
 
 array:
-    ARRAY AP OF type_ref    {$$ = make_common_node("array", $2->size, $4)}
+    ARRAY AP OF type_ref    {$$ = make_common_node("array", $2, $4)}
     ;
 
 statement: if       {$$ = $1}
@@ -133,8 +136,8 @@ if: IF expr THEN statement                    {$$ = make_branch_node($2, $4, NUL
     | IF expr THEN statement ELSE statement   {$$ = make_branch_node($2, $4, $6)}
     ;
 
-block: BEGIN END SEMICOLON                {$$ = make_block(NULL)}
-    | BEGIN block_item END SEMICOLON      {$$ = make_block($2)}
+block: BEGINING END SEMICOLON                {$$ = make_block(NULL)}
+    | BEGINING block_item END SEMICOLON      {$$ = make_block($2)}
     ;
 
 block_item:                   {$$ = NULL}
@@ -182,7 +185,7 @@ binary: expr COLON BIN_EQUALS expr    {$$ = make_expr_node("ASSIGMENT", $1, $4)}
     | expr BIN_OR expr                {$$ = make_expr_node("BIN_OR", $1, $3)}
     ;
 
-braces: OP expr CP  {$$ = make_expr_node(BRACES, $2, NULL)}
+braces: OP expr CP  {$$ = make_expr_node("BRACES", $2, NULL)}
     ;
 
 call: IDENT OP call_list CP  {$$ = make_call_node($1, $3)}

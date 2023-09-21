@@ -1,20 +1,29 @@
 #include <stdio.h>
-#define N 30
+#include "grammer.tab.h"
+#include "ast.h"
 
-int main() {
-    int i, maxsum = 0, K;
-    int arr[N];
-    printf("Enter the elements of the array: \n");
-    for (i = 0; i < N; i++){
-        printf("arr[%d] = ", i);
-        scanf("%d", &arr[i]);
-    }
-    for (i = 0; i < N-4; i++){
-        if (arr[i] + arr[i+1] + arr[i+2] + arr[i+3] + arr[i+4] > maxsum) {
-            maxsum = arr[i] + arr[i+1] + arr[i+2] + arr[i+3] + arr[i+4];
-            K = i;
+extern int yyparse();
+
+extern FILE *yyin;
+
+extern struct ast_node *root;
+
+int main(int argc, char *argv[]) {
+    if (argc > 1) {
+        FILE *input_file = fopen("../jopa.ass", "r");
+        if (input_file) {
+            yyin = input_file;
+            yyparse();
+
+            struct ast_source *j = root;
+            print_ast(root);
+            fclose(input_file);
+
+        } else {
+            printf("Не удалось открыть файл: %s\n", argv[1]);
         }
+    } else {
+        printf("Использование: %s <input_file>\n", argv[0]);
     }
-    printf("5 elements with the maximum amount: %d %d %d %d %d", arr[K], arr[K+1], arr[K+2], arr[K+3], arr[K+4]);
     return 0;
 }

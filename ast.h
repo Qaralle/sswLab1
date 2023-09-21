@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#define MAXIMUM_IDENTIFIER_LENGTH 256
+
 enum ast_node_type {
     EXPRESSION,
     SOURCE,
@@ -13,8 +15,12 @@ enum ast_node_type {
     BLOCK,
     LOOP,
     CALL,
-    COMMON
+    COMMON,
+    TYPE_N,
+    VALUE,
+    IDENTIFIER
 };
+
 
 static const char *ant_names[] = {
         [EXPRESSION] = "expression",
@@ -26,30 +32,33 @@ static const char *ant_names[] = {
         [BLOCK] = "block",
         [LOOP] = "loop",
         [CALL] = "call",
-        [COMMON] = "common-node"
+        [COMMON] = "common-node",
+        [TYPE_N] = "type",
+        [VALUE] = "value",
+        [IDENTIFIER] = "ident"
 };
 
 struct ast_node;
 
 struct ast_expression {
-    char *oper_name;
+    char oper_name[MAXIMUM_IDENTIFIER_LENGTH];
     struct ast_node *left;
     struct ast_node *right;
 };
 
 struct ast_common {
-    char *node_name;
+    char node_name[MAXIMUM_IDENTIFIER_LENGTH];
     struct ast_node *left;
     struct ast_node *right;
 };
 
 struct ast_call {
-    char *ident;
+    struct ast_node *ident;
     struct ast_node *call_list;
 };
 
 struct ast_loop {
-    char *loop_type;
+    char loop_type[MAXIMUM_IDENTIFIER_LENGTH];
     struct ast_node *statement;
     struct ast_node *expression;
 };
@@ -65,7 +74,7 @@ struct ast_branch {
 };
 
 struct ast_function_signature {
-    char *name;
+    struct ast_node *ident;
     struct ast_node *args;
     struct ast_node *type_ref;
 };
@@ -85,6 +94,19 @@ struct ast_source {
     struct ast_node *source_item;
 };
 
+struct ast_value {
+    char type_name[MAXIMUM_IDENTIFIER_LENGTH];
+    char value[MAXIMUM_IDENTIFIER_LENGTH];
+};
+
+struct ast_type {
+    char type_name[MAXIMUM_IDENTIFIER_LENGTH];
+};
+
+struct ast_identifier {
+    char name[MAXIMUM_IDENTIFIER_LENGTH];
+};
+
 struct ast_node {
     enum ast_node_type type;
     union {
@@ -98,6 +120,9 @@ struct ast_node {
         struct ast_loop ast_loop;
         struct ast_call ast_call;
         struct ast_common ast_common;
+        struct ast_type ast_type;
+        struct ast_value ast_value;
+        struct ast_identifier ast_identifier;
     };
 };
 
@@ -105,7 +130,7 @@ struct ast_node *make_common_node(char *, struct ast_node *, struct ast_node *);
 
 struct ast_node *make_expr_node(char *, struct ast_node *, struct ast_node *);
 
-struct ast_node *make_call_node(char *, struct ast_node *);
+struct ast_node *make_call_node(struct ast_node *, struct ast_node *);
 
 struct ast_node *make_loop_node(char *, struct ast_node *, struct ast_node *);
 
@@ -113,7 +138,7 @@ struct ast_node *make_branch_node(struct ast_node *, struct ast_node *, struct a
 
 struct ast_node *make_block(struct ast_node *);
 
-struct ast_node *make_function_signature(char *, struct ast_node *, struct ast_node *);
+struct ast_node *make_function_signature(struct ast_node *, struct ast_node *, struct ast_node *);
 
 struct ast_node *make_body(struct ast_node *, struct ast_node *);
 
@@ -121,8 +146,14 @@ struct ast_node *make_source_item(struct ast_node *, struct ast_node *);
 
 struct ast_node *make_source(struct ast_node *, struct ast_node *);
 
+struct ast_node *make_value_node(char *, char *);
+
+struct ast_node *make_type_node(char *);
+
+struct ast_node *make_ident_node(char *);
+
 void free_ast(struct ast_node *);
 
-int print_ast(struct ast_node *);
+void print_ast(struct ast_node *);
 
 #endif // _AST_H_

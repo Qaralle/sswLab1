@@ -5,4 +5,9 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(sswLab1 main.c
         ast.h
-        ast.c)
+        ast.c
+        error.c
+        error.h
+        grammer.tab.h
+        grammer.tab.c
+        lex.yy.c)

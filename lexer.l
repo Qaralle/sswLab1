@@ -1,6 +1,7 @@
 %{
 #include "error.h"
-#include "parser.tab.h"
+#include "ast.h"
+#include "grammer.tab.h"
 #include <string.h>
 %}
 
@@ -15,7 +16,7 @@
     char buffer[1024];
     strncpy(buffer, yytext+1, strlen(yytext)-2);
     buffer[strlen(buffer)-1] = 0;
-    yylval.node = make_value_node("STR", value);
+    yylval.node = make_value_node("STR", buffer);
     return STR;
 }
 '[^']' {
@@ -76,7 +77,9 @@
               return TYPE;
           }
 
-"begin"                             { return BEGIN; }
+"method"                            { return METHOD; }
+
+"begin"                             { return BEGINING; }
 
 "end"                               { return END; }
 
@@ -177,7 +180,7 @@
  }
 
 [a-zA-Z_][a-zA-Z_0-9]* {
-    yylval.node = make_common_node("IDENT", yytext, NULL);
+    yylval.node = make_ident_node(yytext);
     return IDENT;
 }
 
@@ -189,7 +192,6 @@
                                         fprintf(stderr, "Нераспознанный символ: %s\n", yytext);
                                     }
 %%
-
 
 int yywrap() {
     // Your implementation here, typically returning 1 to signal EOF.
